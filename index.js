@@ -25,10 +25,10 @@ var QueryString = require('querystring');
 function parsedUrl(url) {
   var parsed = Url.parse(url);
   parsed.query = QueryString.parse(parsed.query);
-  parsed.segments = parsed.pathname.substr(1).split('/');
-  if (parsed.segments[parsed.segments.length - 1] === '') {
-    parsed.segments.pop();
-  }
+  parsed.segments = parsed.pathname.substr(1).split('/').filter(
+    function(segment) {
+      return segment.length > 0; 
+    });
   return parsed;
 }
 
