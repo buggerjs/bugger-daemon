@@ -18,40 +18,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-var ProcessResource = require('./resource/process');
-var Url = require('url');
-var QueryString = require('querystring');
+var STATUS_CODES = require('http').STATUS_CODES;
+var respond = module.exports;
 
-function parsedUrl(url) {
-  var parsed = Url.parse(url);
-  parsed.query = QueryString.parse(parsed.query);
-  parsed.segments = parsed.pathname.substr(1).split('/');
-  if (parsed.segments[parsed.segments.length - 1] === '') {
-    parsed.segments.pop();
+respond.error = function(res, err, code) {
+  if ('number' === typeof err) {
+    code = err;
+    err = new Error(STATUS_CODES[code]);
   }
-  return parsed;
-}
 
-/**
- * Bugger daemon - bringing buggers together since 2013
- */
-var buggerd = module.exports = function() {
-  var handleProcessRequest = ProcessResource();
-
-  return function(req, res) {
-    req.parsedUrl = parsedUrl(req.url);
-    switch (req.parsedUrl.segments.shift()) {
-      case 'processes':
-        return handleProcessRequest(req, res);
-      default:
-        return res.end(req.url);
-    }
-  };
-};
-
-/**
- * Create an http server that just runs buggerd
- */
-buggerd.createServer = function() {
-  return require('http').createServer(buggerd());
+  err.code = (err.code || code || 500);
+  res.writeHead(err.code, { 'Content-Type': 'application/json' });
+  return res.end(JSON.stringify({
+    message: err.message,
+    code: err.code,
+    context: err.context
+  }));
 };

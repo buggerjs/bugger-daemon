@@ -18,9 +18,72 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-module.exports = function ProcessResource() {
+function ProcessDescription() {
+};
+
+module.exports = function ProcessResource(respond) {
+  respond || (respond = require('./respond'));
+  ConcatStream = require('concat-stream');
+
   var processMap = {};
+  var STATUS_CODES = require('http').STATUS_CODES;
+
+  function processWithPid(pid, req, res) {
+    switch (req.method) {
+      case 'GET':
+        if (processMap[pid] == null) {
+          return respond.error(res, 404);
+        }
+        return res.end('Lookup ' + pid);
+      case 'PUT':
+        return req.pipe(new ConcatStream(function(body) {
+          var procData;
+          try {
+            procData = JSON.parse(body);
+          } catch (err) {
+            err.context = (body || '').toString();
+            return respond.error(res, err, 400);
+          }
+          return res.end('Register ' + pid + ': ' + JSON.stringify(procData));
+        }));
+      case 'DELETE':
+        return res.end('Unregister ' + pid);
+      default:
+        return respond.error(res, 405);
+    }
+  };
+
+  function processList(req, res) {
+    return res.end('LIST ALL');
+  };
+
+  function websocket(pid, req, res) {
+    return res.end('websocket ' + pid);
+  };
+
+  function sourceMap(pid, mapId, req, res) {
+    return res.end('SourceMap ' + pid + ', ' + mapId);
+  };
 
   return function(req, res) {
+    var pid = req.parsedUrl.segments.shift();
+    if (pid != null) {
+      var subResource = req.parsedUrl.segments.shift();
+      if (subResource == null) {
+        return processWithPid(pid, req, res);
+      } else {
+        switch (subResource) {
+          case 'websocket':
+            return websocket(pid, req, res);
+          case 'source-maps':
+            var mapId = req.parsedUrl.segments.shift();
+            return sourceMap(pid, mapId, req, res);
+          default:
+            return respond.error(res, 404);
+        }
+      }
+    } else {
+      return processList(req, res);
+    }
   };
 };

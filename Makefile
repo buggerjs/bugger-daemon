@@ -1,11 +1,11 @@
 default: all
 
 MOCHA  = node_modules/.bin/mocha --recursive -u tdd
-WACHS  = node_modules/.bin/mocha
+WACHS  = node_modules/.bin/wachs
 GROC   = node_modules/.bin/groc
 
 watch:
-	$(WACHS) -o "lib/**/*.js" make test
+	$(WACHS) -o "**/*.js" node bin/bugger-daemon.js
 
 .PHONY : test test-unit
 test: test-unit
