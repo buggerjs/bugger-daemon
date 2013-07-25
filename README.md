@@ -56,7 +56,7 @@ Array with all known processes. See next section for schema.
 ### GET /processes/:pid
 
 Get information about a process with a given PID. Will only work if the
-process was instrumented previously. Data will look the following:
+process was instrumented previously. Data will look like this:
 
 ```json
 {
@@ -78,13 +78,13 @@ Unregister a process.
 Used by instrumentation to register a new process. It expects JSON data in the
 body that looks like the one shown in the GET request, only without title.
 
-### /processes/:pid/websocket
+### GET /processes/:pid [Upgrade: websocket]
 
 Websocket that the devtools can connect to. If buggerd is running at
 http://127.0.0.1:8058 (which is the default), then the proper devtools url
 for a process with PID 70491 would be:
 
-chrome-devtools://devtools/devtools.html?ws=127.0.0.1:8058/processes/70491/websocket&toolbarColor=rgba(230,230,230,1)&textColor=rgba(0,0,0,1)
+chrome-devtools://devtools/devtools.html?ws=127.0.0.1:8058/processes/70491&toolbarColor=rgba(230,230,230,1)&textColor=rgba(0,0,0,1)
 
 ### /processes/:pid/source-maps/:mapId
 

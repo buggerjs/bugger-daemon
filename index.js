@@ -53,5 +53,27 @@ var buggerd = module.exports = function() {
  * Create an http server that just runs buggerd
  */
 buggerd.createServer = function() {
-  return require('http').createServer(buggerd());
+  var WebSocketServer = require('websocket').server;
+
+  var httpServer = require('http').createServer(buggerd());
+  var webSocket = httpServer.webSocket = new WebSocketServer({
+    httpServer: httpServer,
+    autoAcceptConnections: false
+  });
+
+  webSocket.on('request', function(wsRequest) {
+    var urlInfo = parsedUrl(wsRequest.httpRequest.url);
+    if (urlInfo.segments.length < 2 || urlInfo.segments[0] !== 'processes') {
+      wsRequest.reject(404, "No handler is configured to accept the connection.");
+    } else {
+      wsRequest.socket.buggerPid = parseInt(urlInfo.segments[1], 10);
+      wsRequest.accept(wsRequest.requestedProtocols[0], wsRequest.origin);
+    }
+  });
+
+  webSocket.on('connect', function(conn) {
+    conn.buggerPid = conn.socket.buggerPid;
+  });
+
+  return httpServer;
 };

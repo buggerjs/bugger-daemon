@@ -23,6 +23,7 @@
     "mocha": "~1.12.0"
   },
   "dependencies": {
-    "concat-stream": "~1.0.0"
+    "concat-stream": "~1.0.0",
+    "websocket": "~1.0.8"
   }
 }
