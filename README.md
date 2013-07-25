@@ -86,6 +86,6 @@ for a process with PID 70491 would be:
 
 chrome-devtools://devtools/devtools.html?ws=127.0.0.1:8058/processes/70491&toolbarColor=rgba(230,230,230,1)&textColor=rgba(0,0,0,1)
 
-### /processes/:pid/source-maps/:mapId
+### GET /processes/:pid/source-maps/:mapId
 
 Get the content of a source map.
