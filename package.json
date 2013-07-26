@@ -1,6 +1,6 @@
 {
   "name": "bugger-daemon",
-  "version": "0.0.0",
+  "version": "",
   "description": "buggerd sources",
   "main": "lib/bugger-daemon.js",
   "scripts": {
