@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-require('../index')
+require('../lib/bugger-daemon.js')
 .createServer()
 .listen(8058, '127.0.0.1', function() {
   var address = this.address();

@@ -65,7 +65,7 @@ process was instrumented previously. Data will look like this:
   "params": [ "param1", "--num=10" ],
   "pid": 70491,
   "pwd": "/home/jdoe/workspace/tools",
-  "websocket": "/processes/70491/websocket"
+  "websocket": "/processes/70491"
 }
 ```
 

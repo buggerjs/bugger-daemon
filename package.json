@@ -2,7 +2,7 @@
   "name": "bugger-daemon",
   "version": "0.0.0",
   "description": "buggerd sources",
-  "main": "index.js",
+  "main": "lib/bugger-daemon.js",
   "scripts": {
     "test": "make test"
   },
