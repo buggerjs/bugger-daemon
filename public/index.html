@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>bugger</title>
+    <link rel="stylesheet" href="/pure.min.css" />
+    <link rel="stylesheet" href="/bugger.min.css" />
+  </head>
+  <body class="pure-skin-bugger">
+    <nav>
+      <div class="pure-menu pure-menu-open pure-menu-horizontal">
+        <ul>
+          <li class="pure-menu-selected"><a href="#">bugger</a></li>
+          <li><a href="http://buggerjs.github.io/" target="_blank">Docs</a></li>
+        </ul>
+      </div>
+    </nav>
+    <div class="content">
+      <h1>Running processes</h1>
+      <ul>{{#processes}}
+        <li><dl>
+          <dt>{{script}} - <em>{{pid}}</em></dt>
+          <dd><a href="{{href}}">Link to DevTools</a></dd>
+          <dd><pre><code>$ cd {{pwd}}
+$ node {{title}}</code></pre></dd>
+        </dl></li>
+      {{/processes}}</ul>
+    </div>
+  </body>
+</html>
