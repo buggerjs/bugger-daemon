@@ -1,5 +1,7 @@
 # bugger-daemon
 
+[![Build Status](https://travis-ci.org/jkrems/bugger.png)](https://travis-ci.org/jkrems/bugger)
+
 Main point of communication/integration between the many moving parts of
 bugger.
 
