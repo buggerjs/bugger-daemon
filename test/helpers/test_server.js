@@ -62,7 +62,7 @@ module.exports = function getTestServer() {
 
   var server;
   beforeEach(function(done) {
-    server = buggerd.createServer()
+    server = buggerd()
     .listen(8050, '127.0.0.1', function() {
       return done();
     });
