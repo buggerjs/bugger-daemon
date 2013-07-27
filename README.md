@@ -1,6 +1,6 @@
 # bugger-daemon
 
-[![Build Status](https://travis-ci.org/jkrems/bugger.png)](https://travis-ci.org/jkrems/bugger)
+[![Build Status](https://travis-ci.org/buggerjs/bugger-daemon.png)](https://travis-ci.org/buggerjs/bugger-daemon)
 
 Main point of communication/integration between the many moving parts of
 bugger.
