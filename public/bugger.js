@@ -9,15 +9,18 @@ var Launcher = React.createClass({displayName: 'Launcher',
     if (e) e.preventDefault();
     var cwd = this.refs.cwd.state.value;
     var script = this.refs.script.state.value;
+    var buggerUrl = 'bugger://' + cwd + ':' + script;
 
     var xhr = new XMLHttpRequest(), self = this;
     xhr.addEventListener('load', function() {
-      console.log('created!', xhr.responseText);
+      if (self.props.onLaunched) {
+        self.props.onLaunched();
+      }
     });
     xhr.addEventListener('error', function() {
       console.log('error!');
     });
-    xhr.open('post', '/json/new', true);
+    xhr.open('post', '/json/new?' + buggerUrl, true);
     xhr.send();
   },
 
@@ -32,11 +35,12 @@ var Launcher = React.createClass({displayName: 'Launcher',
 
 var ProcessList = React.createClass({displayName: 'ProcessList',
   renderProcess:function(proc) {
-    return React.DOM.li({key: proc.port}, React.DOM.dl(null, 
-      React.DOM.dt(null, 'worker-shim.js', ' - ', React.DOM.em(null, "4256")), 
-      React.DOM.dd(null, React.DOM.a({href: "#"}, 'Link to DevTools')), 
+    var cwd = proc.url.replace('bugger://', '').split(':')[0];
+    return React.DOM.li({key: proc.id}, React.DOM.dl(null, 
+      React.DOM.dt(null, proc.title, ' - ', React.DOM.em(null, proc.pid || '?')), 
+      React.DOM.dd(null, React.DOM.a({href: proc.devtoolsFrontendUrl}, 'Open in DevTools')), 
       React.DOM.dd(null, React.DOM.pre(null, React.DOM.code(null, 
-        '$ cd ~/foo && \\\n  node --debug-brk=' + proc.port + ' worker-shim.js'
+        '$ cd ' + cwd + ' && \\\n  node --debug-brk=' + (proc.port || 5858) + ' ' + proc.title
       )))
     ));
   },
@@ -47,14 +51,38 @@ var ProcessList = React.createClass({displayName: 'ProcessList',
 });
 
 var Root = React.createClass({displayName: 'Root',
+  getInitialState:function() {
+    return { processes: [] };
+  },
+
+  updateProcessList:function() {
+    var xhr = new XMLHttpRequest(), self = this;
+    xhr.addEventListener('load', function() {
+      if (xhr.statusText !== 'OK') {
+        console.error(xhr.statusText);
+        return;
+      }
+      self.setState({
+        processes: JSON.parse(xhr.responseText)
+      });
+    });
+    xhr.addEventListener('error', function() {
+      console.log('error!');
+    });
+    xhr.open('get', '/json/list', true);
+    xhr.send();
+  },
+
+  componentWillMount:function() {
+    this.updateProcessList();
+  },
+
   render:function() {
-    var processes = [
-      { port: 5858 }
-    ];
+    var processes = this.state.processes;
 
     return React.DOM.div({className: "content"}, 
       React.DOM.h1(null, "Running processes"), 
-      Launcher(null), 
+      Launcher({onLaunched: this.updateProcessList}), 
       ProcessList({items: processes})
     );
   }

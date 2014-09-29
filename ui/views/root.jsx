@@ -8,15 +8,18 @@ var Launcher = React.createClass({
     if (e) e.preventDefault();
     var cwd = this.refs.cwd.state.value;
     var script = this.refs.script.state.value;
+    var buggerUrl = 'bugger://' + cwd + ':' + script;
 
     var xhr = new XMLHttpRequest(), self = this;
     xhr.addEventListener('load', function() {
-      console.log('created!', xhr.responseText);
+      if (self.props.onLaunched) {
+        self.props.onLaunched();
+      }
     });
     xhr.addEventListener('error', function() {
       console.log('error!');
     });
-    xhr.open('post', '/json/new', true);
+    xhr.open('post', '/json/new?' + buggerUrl, true);
     xhr.send();
   },
 
@@ -31,11 +34,12 @@ var Launcher = React.createClass({
 
 var ProcessList = React.createClass({
   renderProcess(proc) {
-    return <li key={proc.port}><dl>
-      <dt>{'worker-shim.js'}{' - '}<em>4256</em></dt>
-      <dd><a href="#">{'Link to DevTools'}</a></dd>
+    var cwd = proc.url.replace('bugger://', '').split(':')[0];
+    return <li key={proc.id}><dl>
+      <dt>{proc.title}{' - '}<em>{proc.pid || '?'}</em></dt>
+      <dd><a href={proc.devtoolsFrontendUrl}>{'Open in DevTools'}</a></dd>
       <dd><pre><code>
-        {'$ cd ~/foo && \\\n  node --debug-brk=' + proc.port + ' worker-shim.js'}
+        {'$ cd ' + cwd + ' && \\\n  node --debug-brk=' + (proc.port || 5858) + ' ' + proc.title}
       </code></pre></dd>
     </dl></li>;
   },
@@ -46,14 +50,38 @@ var ProcessList = React.createClass({
 });
 
 var Root = React.createClass({
+  getInitialState() {
+    return { processes: [] };
+  },
+
+  updateProcessList() {
+    var xhr = new XMLHttpRequest(), self = this;
+    xhr.addEventListener('load', function() {
+      if (xhr.statusText !== 'OK') {
+        console.error(xhr.statusText);
+        return;
+      }
+      self.setState({
+        processes: JSON.parse(xhr.responseText)
+      });
+    });
+    xhr.addEventListener('error', function() {
+      console.log('error!');
+    });
+    xhr.open('get', '/json/list', true);
+    xhr.send();
+  },
+
+  componentWillMount() {
+    this.updateProcessList();
+  },
+
   render() {
-    var processes = [
-      { port: 5858 }
-    ];
+    var processes = this.state.processes;
 
     return <div className="content">
       <h1>Running processes</h1>
-      <Launcher />
+      <Launcher onLaunched={this.updateProcessList} />
       <ProcessList items={processes} />
     </div>;
   }
