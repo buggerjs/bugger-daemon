@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+'use strict';
 
 var createBuggerServer = require('../lib/bugger-daemon.js');
 createBuggerServer().httpServer

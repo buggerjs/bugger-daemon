@@ -49,45 +49,101 @@ bugger.
       https://code.google.com/p/v8/wiki/DebuggerProtocol
 ```
 
-## META HTTP API
+## API
 
-### GET /processes
+This is meant to be (roughly) compatible with the API Chrome exposes.
 
-Array with all known processes. See next section for schema.
 
-### GET /processes/:pid
+### GET /json/version
 
-Get information about a process with a given PID. Will only work if the
-process was instrumented previously. Data will look like this:
+*Note: This endpoint works using any HTTP method to be compatible with Chrome.*
 
 ```json
 {
-  "title": "some_script.js param1 --num=10",
-  "script": "some_script.js",
-  "params": [ "param1", "--num=10" ],
-  "pid": 70491,
-  "pwd": "/home/jdoe/workspace/tools",
-  "websocket": "/processes/70491"
+  Browser: "Chrome/37.0.2062.124",
+  Protocol-Version: "1.1",
+  User-Agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2062.124 Safari/537.36",
+  WebKit-Version: "537.36 (@181352)"
 }
 ```
 
-### DELETE /processes/:pid
 
-Unregister a process.
+### GET /json, GET /json/list
 
-### PUT /processes/:pid
+*Note: This endpoint works using any HTTP method to be compatible with Chrome.*
 
-Used by instrumentation to register a new process. It expects JSON data in the
-body that looks like the one shown in the GET request, only without title.
+```json
+[ {
+  description: "",
+  devtoolsFrontendUrl: "/devtools/devtools.html?ws=localhost:9222/devtools/page/961C1EB7-A0DA-2F42-F6D4-76B453E70DB5",
+  faviconUrl: "https://s.yimg.com/rz/l/favicon.ico",
+  id: "961C1EB7-A0DA-2F42-F6D4-76B453E70DB5",
+  title: "Yahoo",
+  type: "page",
+  url: "https://www.yahoo.com/",
+  webSocketDebuggerUrl: "ws://localhost:9222/devtools/page/961C1EB7-A0DA-2F42-F6D4-76B453E70DB5"
+} ]
+```
 
-### GET /processes/:pid [Upgrade: websocket]
 
-Websocket that the devtools can connect to. If buggerd is running at
-http://127.0.0.1:8058 (which is the default), then the proper devtools url
-for a process with PID 70491 would be:
+### POST /json/new?{url}
 
-chrome-devtools://devtools/devtools.html?ws=127.0.0.1:8058/processes/70491&toolbarColor=rgba(230,230,230,1)&textColor=rgba(0,0,0,1)
+*Note: This endpoint works using any HTTP method to be compatible with Chrome.*
 
-### GET /processes/:pid/source-maps/:mapId
+It responds with a description of the newly spawned process.
+The format is the same as one element in the array returned by `/json`.
 
-Get the content of a source map.
+The url is a "bugger url".
+Which obviously isn't *really* a thing but it's relatively straight-forward:
+
+    bugger://{cwd}:{script}
+
+The working directory may be an absolute path (`/tmp/foo`)
+or anything that can be resolved globally (`~/Projects/xyz`).
+The script will be resolved relative to the working directory.
+
+In the future it might be good to also support arguments,
+either via query or via POST body.
+
+
+### POST /json/activate/{pageId}
+
+*Note: This endpoint works using any HTTP method to be compatible with Chrome.*
+
+In Chrome this would bring a page into the foreground (activate a tab).
+Since this doesn't make a lot of sense for UI-less node processes,
+it's a noop.
+
+If the target is invalid, responds with 404 and a string like this:
+
+```json
+"No such target id: {pageId}"
+```
+
+For valid targets the response is 200, `"Target activated"`.
+
+
+### POST /json/close/{pageId}
+
+*Note: This endpoint works using any HTTP method to be compatible with Chrome.*
+
+Removes the script identifed by `pageId`.
+If the process is running currently, it will be killed.
+
+If the target is invalid, responds with 404 and a string like this:
+
+```json
+"No such target id: {pageId}"
+```
+
+For valid targets the response is 200, `"Target is closing"`.
+
+
+### Websocket /devtools/page/{pageId}
+
+This is where the devtools are connecting to.
+
+
+### GET /devtools/*
+
+A copy of the devtools that ship with Chrome.
