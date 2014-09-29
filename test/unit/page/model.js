@@ -2,9 +2,9 @@
 
 var assert = require('assertive');
 
-var PageModel = require('../../../lib/model/page');
+var PageModel = require('../../../lib/page/model');
 
-describe('model/page', function() {
+describe('page/model', function() {
   beforeEach(function() {
     this.pages = PageModel();
   });
