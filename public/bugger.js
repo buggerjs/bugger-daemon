@@ -36,8 +36,9 @@ var Launcher = React.createClass({displayName: 'Launcher',
 var ProcessList = React.createClass({displayName: 'ProcessList',
   renderProcess:function(proc) {
     var cwd = proc.url.replace('bugger://', '').split(':')[0];
+    var pid = proc.url.split('#')[1] || '?';
     return React.DOM.li({key: proc.id}, React.DOM.dl(null, 
-      React.DOM.dt(null, proc.title, ' - ', React.DOM.em(null, proc.pid || '?')), 
+      React.DOM.dt(null, proc.title, ' - ', React.DOM.em(null, pid)), 
       React.DOM.dd(null, React.DOM.a({href: proc.devtoolsFrontendUrl}, 'Open in DevTools')), 
       React.DOM.dd(null, React.DOM.pre(null, React.DOM.code(null, 
         '$ cd ' + cwd + ' && \\\n  node --debug-brk=' + (proc.port || 5858) + ' ' + proc.title
