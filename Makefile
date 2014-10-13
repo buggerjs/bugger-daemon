@@ -1,21 +1,24 @@
-default: all
+.PHONY: default clean build
+default: build
 
-MOCHA  = node_modules/.bin/mocha --recursive -u tdd
-WACHS  = node_modules/.bin/wachs
-GROC   = node_modules/.bin/groc
+build: public/vendor.js public/bugger.js
+
+clean:
+	rm -f public/vendor.js public/bugger.js
+
+public/vendor.js:
+	./node_modules/.bin/browserify \
+		--require react \
+		--require lodash \
+		--outfile $@
+
+BUNDLE_OPTS := \
+	--external react \
+	--external lodash \
+	--outfile public/bugger.js
+
+public/bugger.js:
+	./node_modules/.bin/browserify . $(BUNDLE_OPTS)
 
 watch:
-	$(WACHS) -o "**/*.js" node bin/bugger-daemon.js
-
-.PHONY : test test-unit test-integration
-test: test-unit test-integration
-test-unit:
-	NODE_ENV=test ${MOCHA} -R spec --recursive test/unit
-test-integration:
-	NODE_ENV=test ${MOCHA} -R spec --recursive test/integration
-
-.PHONY: release release-patch release-minor release-major
-
-release:
-	git push --tags origin HEAD:master
-	npm publish
+	./node_modules/.bin/watchify . $(BUNDLE_OPTS)

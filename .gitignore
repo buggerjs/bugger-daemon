@@ -1,7 +1,5 @@
-/ChromeProfile
-/test.*
 /node_modules
-/src.old
-.svn/
-
-reference/
+/build
+npm-debug.log
+public/bugger.js
+public/vendor.js

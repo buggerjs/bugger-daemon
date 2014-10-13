@@ -15,16 +15,8 @@
         </ul>
       </div>
     </nav>
-    <div class="content">
-      <h1>Running processes</h1>
-      <ul>{{#processes}}
-        <li><dl>
-          <dt>{{script}} - <em>{{pid}}</em></dt>
-          <dd><a href="{{href}}">Link to DevTools</a></dd>
-          <dd><pre><code>$ cd {{pwd}}
-$ node {{title}}</code></pre></dd>
-        </dl></li>
-      {{/processes}}</ul>
-    </div>
+    <div id="root"></div>
+    <script src="/vendor.js"></script>
+    <script src="/bugger.js"></script>
   </body>
 </html>
